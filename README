@@ -1,3 +1,38 @@
 A simple co-operative operating system for the dsPIC33 micro controller from microchip. It includes a simple FIFO scheduler and a memory pool allocator. It is written in less than a 1000 lines of code and complies to just under 4KB's using microchip's C30 compiler. The memory pool can also be tweaked depending on how much memory you have.
 
-Will add more information on how to use it later
+I need to write an in depth guide on how to use this, however in the meantime here is a quick guide
+
+#How to use
+
+1 - Put all the source and header files into one folder and make a new MPLAB project
+2 - Change the header file to that of the MCU you are using (in all the files that has #include <p33FJ128GP802.h>)
+3 - All the user tasks are written in the tasks.c file that is included
+4 - In the main file under the section lables "/** Create Tasks **/" only call createTask for the task you are using.
+	If you need more than 8 tasks you can add more, be sure to include thier definition in tasks.h, also in taskQueue.h change the MAX_TASK define to the total tasks you have.
+5 - Tasks need to return control back to the CPU when they are done, they can this in 3 ways:
+	a)	Call the yield function and pass YIELD, such as: yield(YIELD,0) if a task yields in this way it will be put at the back of the ready queue
+	b)	Call the yield function and pass EXIT, such as: yield(EXIT,0) if a task yields in this way it will have its memory de-allocated and wont be able to run again
+	c)  Call the yield function and pass SLEEP, such as: yield(SLEEP,50) The second argument is the number of milliseconds the task will block. Once the task is done sleeping it will be put at the back of the ready queue
+	Calling any of these will also cause the next avaliable task to execute, if there are none it will launch the idle task and stay there till something becomes ready to execute.
+6 - You can use the allocBlock() function and freeBlock() functions instead of malloc() and free(), the pool sizes are adjustable in mempool.h
+7 - Go into the build options and enable large varibles, its under the MPLAB C30 tab -> Memory Model -> Data Model -> Set it to "Large data model" or the code 	won't compile
+8 - There is no inter task communication, but since its co-operative using global variables works just fine (A way of implementing it is on the way) 
+
+
+#Things to be aware of
+
+1 - The clock is configured to run at 80Mhz using the internal RC by default
+2 - In the yield(SLEEP,x) function the x is in milliseconds, changing the clock speed will change this also
+
+#Troubleshooting
+
+1 - If you cannot compile the project due to memory, you can reduce the size/amount of the memory pools. But keep one memory pool at size of 10bytes and atleast as big as MAX_TASKS * 2, probably more. The micro I used had plenty of ram (16kb). I will update this more later with the exact limit.
+
+#Under development
+
+1 - Inter task communications
+2 - Preemption (Most of the ground work is there but it needs inter task communications to be implemented first)
+
+#DISCLAIMER
+
+This project is a work in progress, there are probably bugs. I have tested it and it runs fine for doing most basic things that don't require very precise timings. 
