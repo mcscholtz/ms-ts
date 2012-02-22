@@ -1,0 +1,3 @@
+A simple co-operative operating system for the dsPIC33 micro controller from microchip. It includes a simple FIFO scheduler and a memory pool allocator. It is written in less than a 1000 lines of code and complies to just under 4KB's using microchip's C30 compiler. The memory pool can also be tweaked depending on how much memory you have.
+
+Will add more information on how to use it later
