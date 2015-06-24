@@ -4,6 +4,7 @@
 #include "taskQueue.h"
 #include "init.h"
 #include "uart.h"
+#include "config.h"
 
 #define NULL (void *)0
 
@@ -21,8 +22,8 @@ _FGS(GSS_OFF);
 _FICD(ICS_PGD2 & JTAGEN_OFF)
 
 //Define UART Tx DMA buffers
-char TX_buff_A[TX_BUFF_SIZE] __attribute__((space(dma)));
-char TX_buff_B[TX_BUFF_SIZE] __attribute__((space(dma)));
+char TX_buff_A[UART_TX_BUFF_SIZE] __attribute__((space(dma)));
+char TX_buff_B[UART_TX_BUFF_SIZE] __attribute__((space(dma)));
 
 void __attribute__((interrupt,no_auto_psv)) _T1Interrupt(void);
 void __attribute__((interrupt,no_auto_psv)) _DMA0Interrupt(void);
@@ -147,27 +148,28 @@ int main()
     TRISB = 0xA080;
     PORTB = 0x0000;
     //Enable Remapping
-    asm volatile ("mov #OSCCONL, w1  \n"
-                  "mov #0x46, w2     \n"
-		  "mov #0x57, w3     \n"
-		  "mov.b w2, [w1]    \n"
-		  "mov.b w3, [w1]    \n"
-                  "bclr OSCCON, #6");
-    //Remap peripherals
-	
-    RPINR18bits.U1RXR = 7; 	//uart1 Rx -> rp7
-    RPOR3bits.RP6R = 0b00011;	//uart1 Tx -> rp6
+    asm volatile (  "mov #OSCCONL, w1  \n"
+                    "mov #0x46, w2     \n"
+                    "mov #0x57, w3     \n"
+                    "mov.b w2, [w1]    \n"
+                    "mov.b w3, [w1]    \n"
+                    "bclr OSCCON, #6");
+    
+    //Remap peripherals	
+        RPINR18bits.U1RXR = 7;          //uart1 Rx -> rp7
+        RPOR3bits.RP6R = 0b00011;       //uart1 Tx -> rp6
     #ifdef FLOW_CONTROL
-    RPINR18bits.U1CTSR = 8; 	//uart1 cts -> rp8
-    RPOR4bits.RP9R = 0b00100;	//uart1 rts -> rp9
+        RPINR18bits.U1CTSR = 8;         //uart1 cts -> rp8
+        RPOR4bits.RP9R = 0b00100;       //uart1 rts -> rp9
     #endif
+
     //Disable Remapping
-    asm volatile ("mov #OSCCONL, w1  \n"
-		  "mov #0x46, w2     \n"
-		  "mov #0x57, w3     \n"
-		  "mov.b w2, [w1]    \n"
-		  "mov.b w3, [w1]    \n"
-		  "bset OSCCON, #6");
+    asm volatile (  "mov #OSCCONL, w1  \n"
+                    "mov #0x46, w2     \n"
+                    "mov #0x57, w3     \n"
+                    "mov.b w2, [w1]    \n"
+                    "mov.b w3, [w1]    \n"
+                    "bset OSCCON, #6");
 				  
     InitUART1();
 	

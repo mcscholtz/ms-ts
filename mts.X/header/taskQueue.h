@@ -12,11 +12,11 @@
 struct queue {
 	void (*TaskPtr)();
 	short id;                               /* unique task identifier */
-        int status;                           /* 0x0001 = critical, insert at top of ready queue */
+        int status;                         /* 0x0001 = critical, insert at top of ready queue */
  //       short priority;
  //       short eff_priority;
-	volatile unsigned int counter;		/* used when a task is blocking to delay */
-	int sp;					/* contain the task's stackpointer */
+	volatile unsigned int counter;          /* used when a task is blocking to delay */
+	int sp;                                 /* contain the task's stackpointer */
 	struct queue *Next;                     /* points to the next member of the queue */
 	struct queue *Prev;                     /* points to the previous queue member */
 };

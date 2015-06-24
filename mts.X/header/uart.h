@@ -1,15 +1,6 @@
 #ifndef _UART_H___
 #define _UART_H___
 
-#define TX_BUFF_SIZE 256
-#define RX_BUFF_SIZE 128
-
-//The number of cycles of inactivity before the UART polling is shutdown
-#define RX_POLL_TIMEOUT 256
-
-#define CLOCK 36864000
-#define BAUD_RATE 9600//38400
-//#define FLOW_CONTROL  //comment this line out if you dont use flow control
 
 struct tx_buffer {
 	short queued;

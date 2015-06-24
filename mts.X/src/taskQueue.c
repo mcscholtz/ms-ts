@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "tasks.h"
 #include "taskQueue.h"
+#include "config.h"
 
 /* The +1 is to account for the idle task */
 struct queue *taskMap[MAX_TASKS+1];

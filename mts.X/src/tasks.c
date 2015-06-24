@@ -4,6 +4,7 @@
 #include "scheduler.h"
 #include "taskQueue.h"
 #include "uart.h"
+#include "config.h"
 
 void task7();
 void parse_input();
@@ -35,7 +36,7 @@ void poll_UART1_RX()
         //If there is no UART activity stop polling
         if(!U1STAbits.URXDA){
             timeout++;
-            if(timeout >= RX_POLL_TIMEOUT){
+            if(timeout >= UART_RX_POLL_TIMEOUT){
                 LATBbits.LATB0 = 0; //not polling
                 IFS0bits.U1RXIF = 0;
                 IEC0bits.U1RXIE = 1;

@@ -2,20 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include "uart.h"
+#include "config.h"
+#include <stdbool.h>
 
 
 #define CHAN_A 0
 #define CHAN_B 1
 
-#define ERROR 0
-#define SUCCESS 1
-
 int fill_dma_buffer_s(int buffer,char* data);
 int fill_dma_buffer_c(int buffer,char data);
 
-extern char TX_buff_A[TX_BUFF_SIZE] __attribute__((space(dma)));
-extern char TX_buff_B[TX_BUFF_SIZE] __attribute__((space(dma)));;
-char RX_buff[RX_BUFF_SIZE];
+extern char TX_buff_A[UART_TX_BUFF_SIZE] __attribute__((space(dma)));
+extern char TX_buff_B[UART_TX_BUFF_SIZE] __attribute__((space(dma)));;
+char RX_buff[UART_RX_BUFF_SIZE];
 
 struct tx_buffer *tx_buff_a = NULL;
 struct tx_buffer *tx_buff_b = NULL;
@@ -78,15 +77,15 @@ void InitUART1() {
 	tx_buff_b = malloc(sizeof(struct tx_buffer));	
 	tx_buff_a->buffer_ptr = 0;	
 	tx_buff_b->buffer_ptr = 0;
-        tx_buff_a->queued = 0;
-        tx_buff_b->queued = 0;
-	active_tx_buffer = 1; //B starts off as the active buffer
+        tx_buff_a->queued = FALSE;
+        tx_buff_b->queued = FALSE;
+	active_tx_buffer = CHAN_B; //B starts off as the active buffer
 	
 	//RX Buffers
 	rx_buff = malloc(sizeof(struct rx_buffer));
 	rx_buff->write_ptr = 0;
 	rx_buff->read_ptr = 0;
-	rx_buff->is_full = 0;
+	rx_buff->is_full = FALSE;
 	IEC0bits.U1RXIE = 1;    //start with RX interupt enabled
 
 	write_uart_s("Loading...");
@@ -153,7 +152,7 @@ int fill_dma_buffer_s(int buffer,char* data)
 	int i,j,total_len;
 	if(buffer == CHAN_A){
 		total_len = data_len + tx_buff_a->buffer_ptr;
-		if(total_len < TX_BUFF_SIZE){
+		if(total_len < UART_TX_BUFF_SIZE){
 			//there is enough room, write to dma buffer
 			j=0;
 			for(i=tx_buff_a->buffer_ptr;i<total_len;i++){
@@ -169,7 +168,7 @@ int fill_dma_buffer_s(int buffer,char* data)
 	}else if(buffer == CHAN_B){
 		//write to buffer B
 		total_len = data_len + tx_buff_b->buffer_ptr;
-		if(total_len < TX_BUFF_SIZE){
+		if(total_len < UART_TX_BUFF_SIZE){
 			//there is enough room, write to dma buffer
 			j=0;
 			for(i=tx_buff_b->buffer_ptr;i<total_len;i++){
@@ -190,7 +189,7 @@ int fill_dma_buffer_s(int buffer,char* data)
 int fill_dma_buffer_c(int buffer,char data)
 {
 	if(buffer == CHAN_A){
-		if((1 + tx_buff_a->buffer_ptr) <= TX_BUFF_SIZE){
+		if((1 + tx_buff_a->buffer_ptr) <= UART_TX_BUFF_SIZE){
 			//there is enough room, write to dma buffer
 			TX_buff_A[tx_buff_a->buffer_ptr] = data;
 			tx_buff_a->buffer_ptr++;
@@ -201,7 +200,7 @@ int fill_dma_buffer_c(int buffer,char data)
 		}
 	}else if(buffer == CHAN_B){
 		//write to buffer B
-		if((1 + tx_buff_b->buffer_ptr) <= TX_BUFF_SIZE){
+		if((1 + tx_buff_b->buffer_ptr) <= UART_TX_BUFF_SIZE){
 			//there is enough room, write to dma buffer
 			TX_buff_B[tx_buff_b->buffer_ptr] = data;
 			tx_buff_b->buffer_ptr++;
@@ -218,9 +217,9 @@ int fill_dma_buffer_c(int buffer,char data)
 int get_tx_buffer_space()
 {
 	if(active_tx_buffer == 0){
-		return (TX_BUFF_SIZE - tx_buff_a->buffer_ptr);
+		return (UART_TX_BUFF_SIZE - tx_buff_a->buffer_ptr);
 	}else{
-		return (TX_BUFF_SIZE - tx_buff_b->buffer_ptr);
+		return (UART_TX_BUFF_SIZE - tx_buff_b->buffer_ptr);
 	}
 }
 
@@ -237,7 +236,7 @@ void commit_uart()
 			DMA0CONbits.CHEN = 1;// Enable DMA0 Channel
 			DMA0REQbits.FORCE = 1;
 			//set A as active
-			active_tx_buffer = 0;			
+			active_tx_buffer = CHAN_A;			
 		}
 	}else{
 		//queue up b
@@ -250,7 +249,7 @@ void commit_uart()
 			DMA0CONbits.CHEN = 1;// Enable DMA0 Channel
 			DMA0REQbits.FORCE = 1;
 			//set B as active
-			active_tx_buffer = 1;
+			active_tx_buffer = CHAN_B;
 		}
 	}
 }
@@ -265,12 +264,12 @@ int push_rx_data(char data)
 	//Next write still needs to be read, flag as full
 	if(rx_buff->write_ptr+1 == rx_buff->read_ptr){
 		rx_buff->write_ptr++;
-		rx_buff->is_full = 1;
-	}else if(rx_buff->write_ptr+1 == RX_BUFF_SIZE){
+		rx_buff->is_full = TRUE;
+	}else if(rx_buff->write_ptr+1 == UART_RX_BUFF_SIZE){
 		//Next write still needs to be read, flag as full
 		if(rx_buff->read_ptr == 0){
 			rx_buff->write_ptr = 0;
-			rx_buff->is_full = 1;
+			rx_buff->is_full = TRUE;
 		}else{
 			rx_buff->write_ptr = 0;
 		}
@@ -285,13 +284,13 @@ char get_rx_data()
 	//if rx_buff->write_ptr == rx_buff->read_ptr then there is nothing to read
 	if(rx_buff->write_ptr != rx_buff->read_ptr){
 		char data = RX_buff[rx_buff->read_ptr];
-		if(rx_buff->read_ptr+1 == RX_BUFF_SIZE){
+		if(rx_buff->read_ptr+1 == UART_RX_BUFF_SIZE){
 			rx_buff->read_ptr = 0;
 		}else{
 			rx_buff->read_ptr++;
 		}
-		if(rx_buff->is_full == 1){
-			rx_buff->is_full = 0;
+		if(rx_buff->is_full){
+			rx_buff->is_full = FALSE;
 		}
 		return data;
 	}else{

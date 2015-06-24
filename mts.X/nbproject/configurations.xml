@@ -9,6 +9,7 @@
       <itemPath>header/taskQueue.h</itemPath>
       <itemPath>header/tasks.h</itemPath>
       <itemPath>header/uart.h</itemPath>
+      <itemPath>header/config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
