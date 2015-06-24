@@ -15,7 +15,7 @@ void init_TMR1( void )
  	IFS0bits.T1IF = 0;              // reset Timer 1 interrupt flag 	
 	IPC0bits.T1IP = 6;			
 	PR1 = ((SYS_CLOCK/SYS_TICK));
-    T1CONbits.TCKPS = 0;		// prescaler set to 1:256
+        T1CONbits.TCKPS = 0;		// prescaler set to 1:256
  	T1CONbits.TCS = 0;              // select internal timer clock
 	T1CONbits.TSIDL = 1;            // continue when cpu idle
 	TMR1 = 0x0000;

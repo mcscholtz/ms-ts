@@ -54,13 +54,13 @@ void yield(int arg,int delay)
         case YIELD:
             //save the stack
             asm volatile(   "PUSH		SR                  \n"
-                            "PUSH.D     W0                  \n"
-                            "PUSH.D     W2                  \n"
-                            "PUSH.D     W4                  \n"
-                            "PUSH.D   	W6                  \n"
-                            "PUSH.D   	W8                  \n"
-                            "PUSH.D   	W10                 \n"
-                            "PUSH.D     W12                 \n"
+                            "PUSH.D             W0                  \n"
+                            "PUSH.D             W2                  \n"
+                            "PUSH.D             W4                  \n"
+                            "PUSH.D             W6                  \n"
+                            "PUSH.D             W8                  \n"
+                            "PUSH.D             W10                 \n"
+                            "PUSH.D             W12                 \n"
                             "PUSH		W14                 \n"
                             "PUSH		RCOUNT              \n"
                             "PUSH		TBLPAG              \n"
@@ -105,13 +105,13 @@ void yield(int arg,int delay)
 	case SLEEP:
         //save the stack
         asm volatile(   "PUSH		SR                  \n"
-                        "PUSH.D     W0                  \n"
-                        "PUSH.D     W2                  \n"
-                        "PUSH.D     W4                  \n"
+                        "PUSH.D         W0                  \n"
+                        "PUSH.D         W2                  \n"
+                        "PUSH.D         W4                  \n"
                         "PUSH.D   	W6                  \n"
                         "PUSH.D   	W8                  \n"
                         "PUSH.D   	W10                 \n"
-                        "PUSH.D     W12                 \n"
+                        "PUSH.D         W12                 \n"
                         "PUSH		W14                 \n"
                         "PUSH		RCOUNT              \n"
                         "PUSH		TBLPAG              \n"
@@ -128,7 +128,7 @@ void yield(int arg,int delay)
                         "PUSH		DOENDH              \n"
                         "PUSH		CORCON              \n"
                         "PUSH		PSVPAG              \n"
-                        "MOV	    W15, _stackPointer	\n");
+                        "MOV            W15, _stackPointer	\n");
         execTask->sp = stackPointer;
         execTask->counter = delay; //time in milliseconds
         if(blockQueue_Head != NULL){

@@ -6,9 +6,6 @@
 #include "uart.h"
 #include "config.h"
 
-#define NULL (void *)0
-
-
 // Select Internal FRC at POR
 _FOSCSEL(FNOSC_FRC);
 // Enable Clock Switching and Configure Posc in XT mode
