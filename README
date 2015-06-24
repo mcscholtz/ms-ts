@@ -1,4 +1,4 @@
-A simple co-operative operating system for the dsPIC33 micro controller from microchip. It includes a simple FIFO scheduler and a memory pool allocator. It is written in less than a 1000 lines of code and complies to just under 4KB's using microchip's C30 compiler. The memory pool can also be tweaked depending on how much memory you have.
+A simple operating system for the dsPIC33 micro controller from microchip. It includes a simple FIFO scheduler. It is written in less than a 1000 lines of code and complies to just under 4KB's using microchip's C30 compiler.
 
 I need to write an in depth guide on how to use this, however in the meantime here is a quick guide
 
@@ -27,11 +27,6 @@ I need to write an in depth guide on how to use this, however in the meantime he
 #Troubleshooting
 
 1 - If you cannot compile the project due to memory, you can reduce the size/amount of the memory pools. But keep one memory pool at size of 10bytes and atleast as big as MAX_TASKS * 2, probably more. The micro I used had plenty of ram (16kb). I will update this more later with the exact limit.
-
-#Under development
-
-1 - Inter task communications
-2 - Preemption (Most of the ground work is there but it needs inter task communications to be implemented first)
 
 #DISCLAIMER
 
